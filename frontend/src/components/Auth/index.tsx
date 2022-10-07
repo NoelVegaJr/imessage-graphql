@@ -3,6 +3,12 @@ import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useMutation } from '@apollo/client';
+import UserOperations from '../../graphql/operations/user';
+import {
+  CreateUsernameData,
+  CreateUsernameVariables,
+} from '../../utils/types/types';
 
 interface IAuthProps {
   session: Session | null;
@@ -13,30 +19,48 @@ const Auth: React.FunctionComponent<IAuthProps> = ({
   session,
   reloadSession,
 }) => {
-  const [username, setUsername] = useState('');
+  const [usernameInput, setUsernameInput] = useState('');
+  const [createUsername, { loading, error }] = useMutation<
+    CreateUsernameData,
+    CreateUsernameVariables
+  >(UserOperations.Mutations.createUsername);
 
   const onSubmit = async () => {
+    if (!usernameInput) return;
+
     try {
-      /**
-       * createUsername mutation to send our username to the GraphQl API
-       */
+      const { data } = await createUsername({
+        variables: { username: usernameInput },
+      });
+      console.log('Submit Response: ', data, loading, error);
+
+      if (!data?.createUsername.success) {
+        throw new Error();
+      }
+      if (data.createUsername.error) {
+        const {
+          createUsername: { error },
+        } = data;
+      }
+
+      reloadSession();
     } catch (error) {
       console.log('onSubmit error ', error);
     }
   };
 
   return (
-    <div className='border border-red-600 h-screen bg-neutral-800 text-white grid place-content-center'>
+    <div className='border border-red-600 h-screen grid place-content-center'>
       <div className='flex flex-col gap-10 items-center'>
         {session ? (
           <>
-            <p className='text-3xl  tracking-wide shadow-2xl'>
+            <p className='text-3xl tracking-wide shadow-2xl'>
               Create a Username
             </p>
             <input
               placeholder='username'
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
+              value={usernameInput}
+              onChange={(event) => setUsernameInput(event.target.value)}
               className='w-full text-white p-2 px-3 rounded outline-none bg-transparent border-2 border-neutral-500/50 placeholder:tracking-wide hover:border-neutral-500 focus:border-neutral-500 transition-all duration-150'
             />
 
