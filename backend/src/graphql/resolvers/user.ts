@@ -3,9 +3,11 @@ const userResolvers = {
     searchUsers: () => {},
   },
   Mutation: {
-    createUsername: () => {},
+    createUsername: (_parent: any, args: any) => {
+      console.log(args);
+    },
   },
-  Subscription: {},
+  // Subscription: {},
 };
 
 export default userResolvers;

@@ -9,7 +9,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import express from 'express';
 import http from 'http';
 
-async function main(typeDefs, resolvers) {
+async function main() {
   const app = express();
   const httpServer = http.createServer(app);
 
@@ -35,4 +35,4 @@ async function main(typeDefs, resolvers) {
   console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
 }
 
-main(typeDefs, resolvers).catch((err) => console.log(err));
+main().catch((err) => console.log(err));
